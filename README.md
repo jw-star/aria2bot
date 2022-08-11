@@ -1,0 +1,68 @@
+# ariabot
+
+aria2 telegram bot
+
+### 特点
+
+    1. 基于电报机器人控制aria2，自行设置下载完成后是否上传telegram
+    2. 多用户，每个用户只能看到自己的任务
+    3. 支持 http、磁力、种子下载
+
+### 缺点
+
+    1. 由于电报单个文件2G限制,超过2g文件将上传失败
+
+### 如何安装
+
+1.编辑docker-compose.yml
+
+```yaml
+      API_ID: 121233
+      API_HASH: fafddddddd
+      BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk
+      JSON_RPC_URL: http://你的ip:6800/jsonrpc
+      JSON_RPC_TOKEN: fafjaljfaaaf
+      UP_TELEGRAM: 'False' #是否上传电报
+```
+
+2.启动
+
+更新镜像
+
+```
+docker compose pull
+```
+
+删除容器（如果容器存在）
+```
+docker rm -f arbot
+```
+
+后台启动
+```yaml
+docker compose up -d
+```
+
+查看日志
+
+```yaml
+docker logs -f arbot
+```
+
+### 可选安装
+
+aria2 一键安装脚本
+
+```yaml
+https://github.com/P3TERX/aria2.sh
+```
+
+### 应用截图
+
+<img alt="img.png" height="400" src="img.png" />
+
+### 灵感来自
+
+https://github.com/HouCoder/tele-aria2
+
+https://github.com/synodriver/aioaria2

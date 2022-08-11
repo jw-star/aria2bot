@@ -1,0 +1,9 @@
+telethon
+hachoir
+cryptg
+pprintpp
+aioaria2
+ujson
+ffmpy3
+uvloop
+PySocks
