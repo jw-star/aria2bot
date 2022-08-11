@@ -5,7 +5,7 @@ aria2 telegram bot
 ### 特点
 
     1. 基于电报机器人控制aria2，自行设置下载完成后是否上传telegram
-    2. 多用户，每个用户只能看到自己的任务
+    2. ~~多用户，每个用户只能看到自己的任务~~，单用户现在，多用户没什么用
     3. 支持 http、磁力、种子下载
 
 ### 缺点
@@ -20,8 +20,11 @@ aria2 telegram bot
       API_ID: 121233
       API_HASH: fafddddddd
       BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk
-      JSON_RPC_URL: http://你的ip:6800/jsonrpc
-      JSON_RPC_TOKEN: fafjaljfaaaf
+      JSON_RPC_URL: http://11111:6800/jsonrpc
+      JSON_RPC_TOKEN: 11111
+      SEND_ID: 11111
+      #      PROXY_IP:   #可选  代理ip
+      #      PROXY_PORT:  #可选 代理端口
       UP_TELEGRAM: 'False' #是否上传电报
 ```
 
