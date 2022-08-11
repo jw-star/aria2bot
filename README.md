@@ -22,7 +22,7 @@ aria2 telegram bot
       BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk
       JSON_RPC_URL: http://11111:6800/jsonrpc
       JSON_RPC_TOKEN: 11111
-      SEND_ID: 11111
+      SEND_ID: 11111     #可以启动bot后 /start 获取，或者转发消息给 @get_id_bot 
       #      PROXY_IP:   #可选  代理ip
       #      PROXY_PORT:  #可选 代理端口
       UP_TELEGRAM: 'False' #是否上传电报
