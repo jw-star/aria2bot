@@ -70,3 +70,6 @@ https://github.com/P3TERX/aria2.sh
 https://github.com/HouCoder/tele-aria2
 
 https://github.com/synodriver/aioaria2
+
+多平台构建参考: https://cloud.tencent.com/developer/article/1543689
+

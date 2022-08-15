@@ -126,7 +126,7 @@ async def send_welcome(event):
     # http 磁力链接
     if text.startswith('http') or text.startswith('magnet:?'):
         global client
-        if client.closed:
+        if client is None or client.closed:
             # 重启客户端
             await initClient()
         if text.endswith('.mp4'):
@@ -148,6 +148,10 @@ async def send_welcome(event):
                 await event.reply('收到了一个种子')
                 path = await bot.download_media(event.message)
                 print(path)
+                global client
+                if client is None or client.closed:
+                    # 重启客户端
+                    await initClient()
                 gid = await client.add_torrent(path)
                 print(gid)
                 os.unlink(path)
