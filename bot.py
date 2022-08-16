@@ -125,7 +125,7 @@ async def send_welcome(event):
         return
     # http 磁力链接
     if text.startswith('http') or text.startswith('magnet:?'):
-        global client
+        
         if client is None or client.closed:
             # 重启客户端
             await initClient()
