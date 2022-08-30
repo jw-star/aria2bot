@@ -1,5 +1,4 @@
 import asyncio
-import os
 import shutil
 
 import uvloop
@@ -13,6 +12,7 @@ import socks
 import ujson
 from telethon import TelegramClient, events, Button
 from util import *
+
 
 
 API_ID = int(os.getenv('API_ID'))
@@ -123,9 +123,10 @@ async def send_welcome(event):
     elif text == '关闭键盘':
         await event.reply("键盘已关闭,/menu 开启键盘", buttons=Button.clear())
         return
+    global client
     # http 磁力链接
     if text.startswith('http') or text.startswith('magnet:?'):
-        
+
         if client is None or client.closed:
             # 重启客户端
             await initClient()
@@ -148,7 +149,7 @@ async def send_welcome(event):
                 await event.reply('收到了一个种子')
                 path = await bot.download_media(event.message)
                 print(path)
-                global client
+
                 if client is None or client.closed:
                     # 重启客户端
                     await initClient()
@@ -205,9 +206,10 @@ async def on_download_complete(trigger, data):
                                          )
 
             async def callback(current, total):
-                print("\r", '正在发送', current, 'out of', total,
-                      'bytes: {:.2%}'.format(current / total), end="", flush=True)
+                # print("\r", '正在发送', current, 'out of', total,
+                #       'bytes: {:.2%}'.format(current / total), end="", flush=True)
                 # await bot.edit_message(msg, path + ' \n上传中 : {:.2%}'.format(current / total))
+                print(current / total)
 
             try:
                 # 单独处理mp4上传
@@ -271,7 +273,7 @@ async def downloading(event):
     global client
     tasks = await client.tellActive()
     if len(tasks) == 0:
-        await event.respond('没有正在运行的任务', parse_mode='markdown')
+        await event.respond('没有正在运行的任务', parse_mode='html')
         return
 
     send_str = ''
@@ -280,11 +282,16 @@ async def downloading(event):
         totalLength = task['totalLength']
         downloadSpeed = task['downloadSpeed']
         fileName = getFileName(task)
+        if fileName == '':
+            continue
         prog = progress(int(totalLength), int(completedLength))
         size = byte2Readable(int(totalLength))
         speed = hum_convert(int(downloadSpeed))
 
         send_str = send_str + '任务名称: <b>' + fileName + '</b>\n进度: ' + prog + '\n大小: ' + size + '\n速度: ' + speed + '/s\n\n'
+    if send_str == '':
+        await event.respond('个别任务无法识别名称，请使用aria2Ng查看', parse_mode='html')
+        return
     await event.respond(send_str, parse_mode='html')
 
 
