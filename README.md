@@ -18,9 +18,9 @@ aria2 telegram bot
 1.编辑docker-compose.yml
 
 ```yaml
-      API_ID: 121233
-      API_HASH: fafddddddd
-      BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk
+      API_ID: 121233 # https://my.telegram.org 获取
+      API_HASH: fafddddddd # https://my.telegram.org 获取
+      BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk # 在telegram @BotFather 获取
       JSON_RPC_URL: http://11111:6800/jsonrpc
       JSON_RPC_TOKEN: 11111
       SEND_ID: 11111     #可以启动bot后 /start 获取，或者转发消息给 @get_id_bot 
@@ -30,6 +30,14 @@ aria2 telegram bot
 ```
 
 2.启动
+
+
+安装 docker
+
+```
+curl -fsSL get.docker.com -o get-docker.sh&&sh get-docker.sh &&systemctl enable docker&&systemctl start docker
+```
+
 
 更新镜像
 
