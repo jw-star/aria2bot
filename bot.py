@@ -132,10 +132,9 @@ async def send_welcome(event):
 
         # 正则匹配
         res = re.findall('magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*', text)
-
         for text in res:
             await client.addUri(
-                uris=text,
+                uris=[text],
             )
         pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
         res2 = re.findall(pattern, text)
