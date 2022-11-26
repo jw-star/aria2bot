@@ -1,4 +1,5 @@
 import asyncio
+import re
 import shutil
 
 # import uvloop
@@ -123,21 +124,32 @@ async def send_welcome(event):
         return
     global client
     # http 磁力链接
-    if text.startswith('http') or text.startswith('magnet:?'):
+    if 'http' in text or 'magnet' in text:
 
         if client is None or client.closed:
             # 重启客户端
             await initClient()
-        if text.endswith('.mp4'):
-            mp4Name = text.split('/')[-1]
-            gid = await client.addUri(
-                [text],
-                options={'out': mp4Name}
+
+        # 正则匹配
+        res = re.findall('magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*', text)
+        if len(res) > 0:
+            await client.addUri(
+                res,
             )
-        else:
-            gid = await client.addUri(
-                [text],
-            )
+        pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        res2 = re.findall(pattern, text)
+
+        for text in res2:
+            if text.endswith('.mp4'):
+                mp4Name = text.split('/')[-1]
+                await client.addUri(
+                    [text],
+                    options={'out': mp4Name}
+                )
+            else:
+                await client.addUri(
+                    [text],
+                )
 
     try:
         if event.media and event.media.document:
