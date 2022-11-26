@@ -1,9 +1,9 @@
 import asyncio
 import shutil
 
-import uvloop
-
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+# import uvloop
+#
+# asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 import datetime
 from pprint import pprint
 
@@ -12,8 +12,6 @@ import socks
 import ujson
 from telethon import TelegramClient, events, Button
 from util import *
-
-
 
 API_ID = int(os.getenv('API_ID'))
 API_HASH = os.getenv('API_HASH')
@@ -350,7 +348,7 @@ async def stopTask(event):
     for task in tasks:
         fileName = getFileName(task)
         gid = task['gid']
-        buttons.append(Button.inline(fileName, 'pause-task.' + gid))
+        buttons.append([Button.inline(fileName, 'pause-task.' + gid)])
 
     await event.respond('请选择要暂停⏸️的任务', parse_mode='html', buttons=buttons)
 
@@ -366,7 +364,7 @@ async def unstopTask(event):
     for task in tasks:
         fileName = getFileName(task)
         gid = task['gid']
-        buttons.append(Button.inline(fileName, 'unpause-task.' + gid))
+        buttons.append([Button.inline(fileName, 'unpause-task.' + gid)])
 
     await event.respond('请选择要恢复▶️的任务', parse_mode='html', buttons=buttons)
 
@@ -392,7 +390,7 @@ async def removeTask(event):
     for task in tempTask:
         fileName = getFileName(task)
         gid = task['gid']
-        buttons.append(Button.inline(fileName, 'del-task.' + gid))
+        buttons.append([Button.inline(fileName, 'del-task.' + gid)])
     await event.respond('请选择要删除❌ 的任务', parse_mode='html', buttons=buttons)
 
 
