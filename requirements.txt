@@ -5,5 +5,4 @@ pprintpp
 aioaria2
 ujson
 ffmpy3
-uvloop
-PySocks
+python-socks[asyncio]
