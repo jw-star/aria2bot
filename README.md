@@ -71,7 +71,7 @@ https://github.com/P3TERX/aria2.sh
 
 ### 应用截图
 
-<img alt="img.png" height="400" src="img.png" />
+<img alt="img.png" height="400" src="img.jpg" />
 
 ### 灵感来自
 
