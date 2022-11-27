@@ -9,6 +9,8 @@ services:
     volumes:
       #aria2下载目录，默认
       - /root/downloads:/root/downloads
+      #挂载自定义的目录
+      - /测试:/测试
     environment:
       TZ: Asia/Shanghai
       API_ID: 11111

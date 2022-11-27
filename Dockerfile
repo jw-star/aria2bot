@@ -1,6 +1,6 @@
 #pip install pipreqs
 #pipreqs requirements.txt
-FROM python:3.10.5-slim-buster
+FROM python:3.10.7-slim-buster
 
 RUN apt-get update && apt-get -y install  gcc ffmpeg
 COPY . /app

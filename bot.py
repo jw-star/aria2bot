@@ -259,11 +259,15 @@ async def on_download_complete(trigger, data):
     global client
     tellStatus = await client.tellStatus(gid)
     files = tellStatus['files']
-    if UP_TELEGRAM:
-        # 上传文件
-        for file in files:
-            path = file['path']
+    # 上传文件
+    for file in files:
+        path = file['path']
+        await bot.send_message(SEND_ID,
+                               '下载完成===> ' + path,
+                               )
+        # 发送文件下载成功的信息
 
+        if UP_TELEGRAM:
             if '[METADATA]' in path:
                 os.unlink(path)
                 return
@@ -293,6 +297,7 @@ async def on_download_complete(trigger, data):
                                         supports_streaming=True,
                                         progress_callback=callback
                                         )
+                    await msg.delete()
                     os.unlink(pat + '/' + filename + '.jpg')
                     os.unlink(pat + '/' + 'mo-' + filename)
                 else:
