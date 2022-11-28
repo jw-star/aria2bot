@@ -5,21 +5,20 @@ import asyncio
 import datetime
 import re
 import shutil
-from pprint import pprint
 
-import aioaria2
 import python_socks
-import ujson
 from telethon import TelegramClient, events, Button
 
+from aria2client import Aria2Client
 from util import *
 
 API_ID = int(os.getenv('API_ID'))
 API_HASH = os.getenv('API_HASH')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+
 JSON_RPC_URL = os.getenv('JSON_RPC_URL')
 JSON_RPC_TOKEN = os.getenv('JSON_RPC_TOKEN')
-UP_TELEGRAM = os.getenv('UP_TELEGRAM', 'False') == 'True'
+
 SEND_ID = int(os.getenv('SEND_ID'))
 # 可选配置
 PROXY_IP = os.getenv('PROXY_IP', None)
@@ -32,34 +31,24 @@ else:
 
 bot = TelegramClient(None, API_ID, API_HASH, proxy=proxy).start(bot_token=BOT_TOKEN)
 
-client = None
-
 # 自定义目录绝对路径
 out_dir = ''
 # 是否默认目录
 is_def_dir = True
 
+ar: Aria2Client = Aria2Client(JSON_RPC_URL, JSON_RPC_TOKEN, bot)
+
 
 # 入口
 async def main():
-    global client
-    await init_aria2_client()
+    await ar.init()
+    ar.client.onDownloadStart(ar.on_download_start)
+    ar.client.onDownloadPause(ar.on_download_pause)
+    ar.client.onDownloadComplete(ar.on_download_complete)
+    ar.client.onDownloadError(ar.on_download_error)
+
     bot.add_event_handler(BotCallbackHandler)
     print('bot启动了')
-
-
-async def init_aria2_client():
-    global client
-    client = await aioaria2.Aria2WebsocketClient.new(JSON_RPC_URL,
-                                                     token=JSON_RPC_TOKEN,
-                                                     loads=ujson.loads,
-                                                     dumps=ujson.dumps,
-                                                     )
-    client.onDownloadComplete(on_download_complete)
-    client.onDownloadError(on_download_error)
-    # client.onBtDownloadComplete(on_download_complete)
-    client.onDownloadStart(on_download_start)
-    client.onDownloadPause(on_download_pause)
 
 
 def get_menu(is_def_dir):
@@ -184,7 +173,7 @@ async def send_welcome(event):
     elif text == '关闭键盘':
         await event.reply("键盘已关闭,/menu 开启键盘", buttons=Button.clear())
         return
-    global client
+
     exta_dic = dict()
     if not is_def_dir and out_dir != '':
         exta_dic['dir'] = out_dir
@@ -192,14 +181,14 @@ async def send_welcome(event):
     # http 磁力链接
     if 'http' in text or 'magnet' in text:
 
-        if client is None or client.closed:
+        if ar.client is None or ar.client.closed:
             # 重启客户端
-            await init_aria2_client()
+            await ar.init()
 
         # 正则匹配
         res = re.findall('magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*', text)
         for text in res:
-            await client.addUri(
+            await ar.client.addUri(
                 uris=[text],
                 options=exta_dic,
             )
@@ -210,12 +199,12 @@ async def send_welcome(event):
             if text.endswith('.mp4'):
                 mp4Name = text.split('/')[-1]
                 exta_dic['out'] = mp4Name
-                await client.addUri(
+                await ar.client.addUri(
                     [text],
                     options=exta_dic,
                 )
             else:
-                await client.addUri(
+                await ar.client.addUri(
                     [text],
                     options=exta_dic,
                 )
@@ -229,10 +218,10 @@ async def send_welcome(event):
                 path = await bot.download_media(event.message)
                 print(path)
 
-                if client is None or client.closed:
+                if ar.client is None or ar.client.closed:
                     # 重启客户端
-                    await init_aria2_client()
-                gid = await client.add_torrent(path, options=exta_dic, )
+                    await ar.init()
+                gid = await ar.client.add_torrent(path, options=exta_dic, )
                 print(gid)
                 # os.unlink(path)
     except Exception as e:
@@ -242,108 +231,9 @@ async def send_welcome(event):
 # 消息监听结束===============
 
 
-# rpc回调开始==========================
-async def on_download_start(trigger, data):
-    print(f"===========下载 开始 {data}")
-    gid = data['params'][0]['gid']
-    global client
-    # 查询是否是绑定特征值的文件
-    tellStatus = await client.tellStatus(gid)
-    await bot.send_message(SEND_ID, f'{getFileName(tellStatus)} 任务已经开始下载... \n 对应路径: {tellStatus["dir"]}',
-                           parse_mode='html')
-
-
-async def on_download_complete(trigger, data):
-    print(f"===========下载 完成 {data}")
-    gid = data['params'][0]['gid']
-    global client
-    tellStatus = await client.tellStatus(gid)
-    files = tellStatus['files']
-    # 上传文件
-    for file in files:
-        path = file['path']
-        await bot.send_message(SEND_ID,
-                               '下载完成===> ' + path,
-                               )
-        # 发送文件下载成功的信息
-
-        if UP_TELEGRAM:
-            if '[METADATA]' in path:
-                os.unlink(path)
-                return
-            print('开始上传,路径文件:' + path)
-            msg = await bot.send_message(SEND_ID,
-                                         '上传中===> ' + path,
-                                         )
-
-            async def callback(current, total):
-                # print("\r", '正在发送', current, 'out of', total,
-                #       'bytes: {:.2%}'.format(current / total), end="", flush=True)
-                # await bot.edit_message(msg, path + ' \n上传中 : {:.2%}'.format(current / total))
-                print(current / total)
-
-            try:
-                # 单独处理mp4上传
-                if '.mp4' in path:
-
-                    pat, filename = os.path.split(path)
-                    await order_moov(path, pat + '/' + 'mo-' + filename)
-                    # 截图
-                    await imgCoverFromFile(path, pat + '/' + filename + '.jpg')
-                    os.unlink(path)
-                    await bot.send_file(SEND_ID,
-                                        pat + '/' + 'mo-' + filename,
-                                        thumb=pat + '/' + filename + '.jpg',
-                                        supports_streaming=True,
-                                        progress_callback=callback
-                                        )
-                    await msg.delete()
-                    os.unlink(pat + '/' + filename + '.jpg')
-                    os.unlink(pat + '/' + 'mo-' + filename)
-                else:
-                    await bot.send_file(SEND_ID,
-                                        path,
-                                        progress_callback=callback
-                                        )
-                    await msg.delete()
-                    os.unlink(path)
-
-            except FileNotFoundError as e:
-                print('文件未找到')
-
-
-async def on_download_pause(trigger, data):
-    gid = data['params'][0]['gid']
-    global client
-    tellStatus = await client.tellStatus(gid)
-    filename = getFileName(tellStatus)
-    print('回调===>任务: ', filename, '暂停')
-    await bot.send_message(SEND_ID, filename + ' 任务已经成功暂停')
-
-
-async def on_download_error(trigger, data):
-    print(f"===========下载 错误 {data}")
-    gid = data['params'][0]['gid']
-    global client
-    tellStatus = await client.tellStatus(gid)
-    errorCode = tellStatus['errorCode']
-    errorMessage = tellStatus['errorMessage']
-    print('任务', gid, '错误码', errorCode, '错误信息：', errorMessage)
-    if errorCode == '12':
-        await bot.send_message(SEND_ID, ' 任务正在下载,请删除后再尝试')
-    else:
-        await bot.send_message(SEND_ID, errorMessage)
-
-    pprint(tellStatus)
-
-
-# rpc回调结束=================================
-
-
 # 文本按钮回调方法=============================
 async def downloading(event):
-    global client
-    tasks = await client.tellActive()
+    tasks = await ar.client.tellActive()
     if len(tasks) == 0:
         await event.respond('没有正在运行的任务', parse_mode='html')
         return
@@ -368,8 +258,7 @@ async def downloading(event):
 
 
 async def waiting(event):
-    global client
-    tasks = await client.tellWaiting(0, 10)
+    tasks = await ar.client.tellWaiting(0, 30)
     # 筛选send_id对应的正在下载任务
     if len(tasks) == 0:
         await event.respond('没有正在等待的任务', parse_mode='markdown')
@@ -389,8 +278,7 @@ async def waiting(event):
 
 
 async def stoped(event):
-    global client
-    tasks = await  client.tellStopped(0, 500)
+    tasks = await  ar.client.tellStopped(0, 500)
 
     if len(tasks) == 0:
         await event.respond('没有已完成或停止的任务', parse_mode='markdown')
@@ -410,8 +298,7 @@ async def stoped(event):
 
 
 async def stopTask(event):
-    global client
-    tasks = await client.tellActive()
+    tasks = await ar.client.tellActive()
 
     # 筛选send_id对应的正在下载任务
     if len(tasks) == 0:
@@ -428,8 +315,7 @@ async def stopTask(event):
 
 
 async def unstopTask(event):
-    global client
-    tasks = await client.tellWaiting(0, 500)
+    tasks = await ar.client.tellWaiting(0, 500)
     # 筛选send_id对应的任务
     if len(tasks) == 0:
         await event.respond('没有已暂停的任务,无法恢复下载', parse_mode='markdown')
@@ -444,15 +330,13 @@ async def unstopTask(event):
 
 
 async def removeTask(event):
-    global client
-
     tempTask = []
     # 正在下载的任务
-    tasks = await client.tellActive()
+    tasks = await ar.client.tellActive()
     for task in tasks:
         tempTask.append(task)
     # 正在等待的任务
-    tasks = await client.tellWaiting(0, 1000)
+    tasks = await  ar.client.tellWaiting(0, 1000)
     for task in tasks:
         tempTask.append(task)
     if len(tempTask) == 0:
@@ -469,16 +353,15 @@ async def removeTask(event):
 
 
 async def removeAll(event):
-    global client
     # 过滤 已完成或停止
-    tasks = await  client.tellStopped(0, 500)
+    tasks = await   ar.client.tellStopped(0, 500)
 
     if len(tasks) == 0:
         await event.respond('没有要清空的任务', parse_mode='html')
         return
 
     for task in tasks:
-        await client.removeDownloadResult(task['gid'])
+        await  ar.client.removeDownloadResult(task['gid'])
         dir = task['dir']
 
     try:
@@ -495,20 +378,17 @@ async def removeAll(event):
 
 # 调用暂停
 async def pause(event, gid):
-    global client
-    await client.pause(gid)
+    await  ar.client.pause(gid)
 
 
 # 调用恢复
 async def unpause(event, gid):
-    global client
-    await client.unpause(gid)
+    await  ar.client.unpause(gid)
 
 
 # 调用删除
 async def delToTask(event, gid):
-    global client
-    await client.remove(gid)
+    await  ar.client.remove(gid)
     await bot.send_message(SEND_ID, '任务删除成功')
 
 
