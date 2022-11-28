@@ -97,7 +97,7 @@ async def handler(event):
     await event.reply("键盘已关闭", buttons=Button.clear())
 
 
-@bot.on(events.NewMessage(pattern="/path"))
+@bot.on(events.NewMessage(pattern="/path",from_users=SEND_ID))
 async def path(event):
     text = event.text;
     text = text.replace('/path ', '')
@@ -132,7 +132,7 @@ async def handler(event):
     ''', parse_mode='html')
 
 
-@bot.on(events.NewMessage)
+@bot.on(events.NewMessage(from_users=SEND_ID))
 async def send_welcome(event):
     text = event.raw_text
     print(str(datetime.datetime.now()) + ':' + text)
