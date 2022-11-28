@@ -87,7 +87,7 @@ async def BotCallbackHandler(event):
 
 
 # 消息监听开始===============
-@bot.on(events.NewMessage(pattern='/menu'))
+@bot.on(events.NewMessage(pattern='/menu',from_users=SEND_ID))
 async def send_welcome(event):
     await event.respond('请选择一个选项', parse_mode='html', buttons=get_menu(is_def_dir))
 
