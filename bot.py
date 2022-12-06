@@ -87,7 +87,7 @@ async def BotCallbackHandler(event):
 
 
 # 消息监听开始===============
-@bot.on(events.NewMessage(pattern='/menu',from_users=SEND_ID))
+@bot.on(events.NewMessage(pattern='/menu', from_users=SEND_ID))
 async def send_welcome(event):
     await event.respond('请选择一个选项', parse_mode='html', buttons=get_menu(is_def_dir))
 
@@ -97,7 +97,7 @@ async def handler(event):
     await event.reply("键盘已关闭", buttons=Button.clear())
 
 
-@bot.on(events.NewMessage(pattern="/path",from_users=SEND_ID))
+@bot.on(events.NewMessage(pattern="/path", from_users=SEND_ID))
 async def path(event):
     text = event.text;
     text = text.replace('/path ', '')
@@ -178,12 +178,13 @@ async def send_welcome(event):
     if not is_def_dir and out_dir != '':
         exta_dic['dir'] = out_dir
 
+    if ar.client is None or ar.client.closed:
+        # 重启客户端
+        await ar.init()
+
+
     # http 磁力链接
     if 'http' in text or 'magnet' in text:
-
-        if ar.client is None or ar.client.closed:
-            # 重启客户端
-            await ar.init()
 
         # 正则匹配
         res = re.findall('magnet:\?xt=urn:btih:[0-9a-fA-F]{40,}.*', text)
@@ -218,9 +219,6 @@ async def send_welcome(event):
                 path = await bot.download_media(event.message)
                 print(path)
 
-                if ar.client is None or ar.client.closed:
-                    # 重启客户端
-                    await ar.init()
                 gid = await ar.client.add_torrent(path, options=exta_dic, )
                 print(gid)
                 # os.unlink(path)
