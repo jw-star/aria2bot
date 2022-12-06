@@ -136,7 +136,9 @@ async def handler(event):
 async def send_welcome(event):
     text = event.raw_text
     print(str(datetime.datetime.now()) + ':' + text)
-
+    if ar.client is None or ar.client.closed:
+        # 重启客户端
+        await ar.init()
     # 键盘消息
     if text == '⬇️正在下载':
         await downloading(event)
@@ -178,9 +180,7 @@ async def send_welcome(event):
     if not is_def_dir and out_dir != '':
         exta_dic['dir'] = out_dir
 
-    if ar.client is None or ar.client.closed:
-        # 重启客户端
-        await ar.init()
+
 
 
     # http 磁力链接
