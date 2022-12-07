@@ -26,6 +26,10 @@ class Aria2Client:
         self.client: Aria2WebsocketClient = await Aria2WebsocketClient.new(self.rpc_url, token=self.rpc_token,
                                                                            loads=ujson.loads,
                                                                            dumps=ujson.dumps, )
+        self.client.onDownloadStart(self.on_download_start)
+        self.client.onDownloadPause(self.on_download_pause)
+        self.client.onDownloadComplete(self.on_download_complete)
+        self.client.onDownloadError(self.on_download_error)
 
     async def on_download_start(self, trigger, data):
         print(f"===========下载 开始 {data}")

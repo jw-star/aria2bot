@@ -42,11 +42,6 @@ ar: Aria2Client = Aria2Client(JSON_RPC_URL, JSON_RPC_TOKEN, bot)
 # 入口
 async def main():
     await ar.init()
-    ar.client.onDownloadStart(ar.on_download_start)
-    ar.client.onDownloadPause(ar.on_download_pause)
-    ar.client.onDownloadComplete(ar.on_download_complete)
-    ar.client.onDownloadError(ar.on_download_error)
-
     bot.add_event_handler(BotCallbackHandler)
     print('bot启动了')
 
@@ -181,7 +176,6 @@ async def send_welcome(event):
     if ar.client is None or ar.client.closed:
         # 重启客户端
         await ar.init()
-
 
     # http 磁力链接
     if 'http' in text or 'magnet' in text:
