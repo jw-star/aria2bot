@@ -27,7 +27,6 @@ class Aria2Client:
                                                                            loads=ujson.loads,
                                                                            dumps=ujson.dumps, )
 
-        self.client.onDownloadStart()
         # 先取消回调
         self.client.unregister(self.on_download_start, "aria2.onDownloadStart")
         self.client.unregister(self.on_download_pause, "aria2.onDownloadPause")
