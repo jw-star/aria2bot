@@ -29,10 +29,10 @@ class Aria2Client:
 
         self.client.onDownloadStart()
         # 先取消回调
-        self.client.unregister(self.on_download_start)
-        self.client.unregister(self.on_download_pause)
-        self.client.unregister(self.on_download_complete)
-        self.client.unregister(self.on_download_error)
+        self.client.unregister(self.on_download_start, "aria2.onDownloadStart")
+        self.client.unregister(self.on_download_pause, "aria2.onDownloadPause")
+        self.client.unregister(self.on_download_complete, "aria2.onDownloadComplete")
+        self.client.unregister(self.on_download_error, "aria2.onDownloadError")
 
         self.client.onDownloadStart(self.on_download_start)
         self.client.onDownloadPause(self.on_download_pause)
