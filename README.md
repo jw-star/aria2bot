@@ -76,6 +76,9 @@ https://github.com/P3TERX/aria2.sh
 
 ### 灵感来自
 
+/help  查看帮助
+
+
 https://github.com/HouCoder/tele-aria2
 
 https://github.com/synodriver/aioaria2
