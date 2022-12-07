@@ -42,6 +42,11 @@ ar: Aria2Client = Aria2Client(JSON_RPC_URL, JSON_RPC_TOKEN, bot)
 # 入口
 async def main():
     await ar.init()
+
+    ar.client.onDownloadStart(ar.on_download_start)
+    ar.client.onDownloadPause(ar.on_download_pause)
+    ar.client.onDownloadComplete(ar.on_download_complete)
+    ar.client.onDownloadError(ar.on_download_error)
     bot.add_event_handler(BotCallbackHandler)
     print('bot启动了')
 
