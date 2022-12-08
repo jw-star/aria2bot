@@ -16,9 +16,7 @@ services:
       API_ID: 11111
       API_HASH: 11111
       BOT_TOKEN: 11111:11111
-      JSON_RPC_URL: http://11111:6800/jsonrpc
-      JSON_RPC_TOKEN: 11111
-      SEND_ID: 11111
-      #      PROXY_IP:   #可选  代理ip
-      #      PROXY_PORT:  #可选 代理端口
-      UP_TELEGRAM: 'False' #是否上传电报
+      JSON_RPC_URL: http://198.200.51.161:6800/jsonrpc
+      JSON_RPC_TOKEN: 4add2b79ce0927447ece
+      SEND_ID: 1904880836
+      UP_TELEGRAM: 'False' 
