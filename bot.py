@@ -54,19 +54,19 @@ async def main():
 def get_menu(is_def_dir):
     return [
         [
-            Button.text('⬇️正在下载'),
-            Button.text('⌛️ 正在等待'),
-            Button.text('✅ 已完成/停止')
+            Button.text('⬇️正在下载',resize=True),
+            Button.text('⌛️ 正在等待',resize=True),
+            Button.text('✅ 已完成/停止',resize=True)
         ],
         [
-            Button.text('⏸️暂停任务'),
-            Button.text('▶️恢复任务'),
-            Button.text('❌ 删除任务'),
+            Button.text('⏸️暂停任务',resize=True),
+            Button.text('▶️恢复任务',resize=True),
+            Button.text('❌ 删除任务',resize=True),
         ],
         [
-            Button.text('❌ ❌ 清空已完成/停止'),
-            Button.text('❎ 开启自定义目录' if is_def_dir else '✅ 关闭自定义目录'),
-            Button.text('关闭键盘'),
+            Button.text('❌ ❌ 清空已完成/停止',resize=True),
+            Button.text('❎ 开启自定义目录' if is_def_dir else '✅ 关闭自定义目录',resize=True),
+            Button.text('关闭键盘',resize=True),
         ],
     ]
 
@@ -180,8 +180,6 @@ async def send_welcome(event):
     if not is_def_dir and out_dir != '':
         exta_dic['dir'] = out_dir
 
-
-
     # http 磁力链接
     if 'http' in text or 'magnet' in text:
 
@@ -192,11 +190,10 @@ async def send_welcome(event):
                 uris=[text],
                 options=exta_dic,
             )
-        pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-        res2 = re.findall(pattern, text)
+        res2=text.split('\n')
 
         for text in res2:
-            if text.endswith('.mp4'):
+            if text.endswith('.mp4') or '.mp4' in text:
                 mp4Name = text.split('/')[-1]
                 exta_dic['out'] = mp4Name
                 await ar.client.addUri(
