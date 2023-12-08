@@ -39,7 +39,12 @@ async def handler(event):
 
 @bot.on(events.NewMessage(pattern="/info", from_users=ADMIN_ID))
 async def handler(event):
-    pass
+    result = await client.get_global_option()
+    await event.respond(
+        f'下载目录: {result["dir"]}\n'
+        f'最大同时下载数: {result["max-concurrent-downloads"]}\n'
+        f'允许覆盖: {"是" if result["allow-overwrite"] else "否"}'
+    )
 
 
 @bot.on(events.NewMessage(pattern="/path", from_users=ADMIN_ID))
@@ -136,14 +141,11 @@ def get_media_from_message(message: "Message") -> Any:
 async def remove_all(event):
     # 过滤 已完成或停止
     tasks = await client.tell_stopped(0, 500)
-    if len(tasks) == 0:
-        await event.respond('没有要清空的任务', parse_mode='html')
-        return
     for task in tasks:
         await client.remove_download_result(task['gid'])
-    print('清空目录 ', tasks[0]['dir'])
-    shutil.rmtree(tasks[0]['dir'], ignore_errors=True)
-
+    result = await client.get_global_option()
+    print('清空目录 ', result['dir'])
+    shutil.rmtree(result['dir'], ignore_errors=True)
     await event.respond('任务已清空,所有文件已删除', parse_mode='html')
 
 
@@ -300,6 +302,7 @@ async def main():
     commands = [
         BotCommand(command="start", description='开始使用'),
         BotCommand(command="help", description='帮助'),
+        BotCommand(command="info", description='设置信息'),
         BotCommand(command="web", description='ariaNg在线地址'),
     ]
     await bot(

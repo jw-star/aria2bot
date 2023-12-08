@@ -3,6 +3,7 @@ import base64
 import json
 import os
 import uuid
+from pprint import pprint
 from typing import List, Dict, Any
 
 import aiohttp
@@ -63,7 +64,7 @@ class AsyncAria2Client:
         params_ = self.get_rpc_body(method, params)
         return json.dumps(params_)
 
-    def get_rpc_body(self, method, params):
+    def get_rpc_body(self, method, params=[]):
         params_ = {
             'jsonrpc': '2.0',
             'id': str(uuid.uuid4()),
@@ -284,12 +285,19 @@ class AsyncAria2Client:
         rpc_body = self.get_rpc_body('aria2.changeGlobalOption', params)
         return await self.post_body(rpc_body)
 
+    async def get_global_option(self):
+        rpc_body = self.get_rpc_body('aria2.getGlobalOption')
+        data = await self.post_body(rpc_body)
+        return data['result']
+
 
 async def main():
     client = AsyncAria2Client(RPC_SECRET, f'ws://{RPC_URL}', None)
 
     await client.connect()
-    #....
+    result = await client.get_global_option()
+    pprint(result)
+
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

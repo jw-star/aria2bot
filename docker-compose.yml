@@ -7,6 +7,8 @@ services:
     restart: always
     volumes:
       - ./db:/app/db
+      - /root/downloads:/root/downloads
+      - /qqqq:/qqqq
     build: .
     environment:
       TZ: Asia/Shanghai
