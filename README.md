@@ -10,6 +10,7 @@ aria2 telegram bot
 4. 支持自定义目录下载,使用 /path 命令设置
 5. 自己实现 `aria2c` `jsonrpc` 调用 增加断开重连功能
 6. 命令 /web 获取在线 ariaNg web控制地址，方便跳转
+7. 下载实时进度、上传实时进度显示
 
 ### 缺点
 
