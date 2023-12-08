@@ -1,24 +1,12 @@
 version: "3.7"
-
 services:
-  arbot:
-    image: jwstar/arbot
+  aria2bot:
+    image: jwstar/aria2bot
     network_mode: host
+    container_name: aria2bot
     restart: always
-    container_name: arbot
     volumes:
-      #aria2下载目录，默认
-      - /root/downloads:/root/downloads
-      #挂载自定义的目录 方便发送 telgram 后删除文件，不设置，容器会找不到目录
-      - /测试:/测试
+      - ./db:/app/db
+    build: .
     environment:
       TZ: Asia/Shanghai
-      API_ID: 11111
-      API_HASH: 11111
-      BOT_TOKEN: 11111:11111
-      JSON_RPC_URL: http://11111:6800/jsonrpc
-      JSON_RPC_TOKEN: 11111
-      SEND_ID: 11111
-      #      PROXY_IP:   #可选  代理ip
-      #      PROXY_PORT:  #可选 代理端口
-      UP_TELEGRAM: 'False' #是否上传电报

@@ -1,8 +1,9 @@
+websocket-client[optional]
+pyyaml
 telethon
-hachoir
-cryptg
-pprintpp
-aioaria2
-ujson
+python_socks
+async_timeout
+coloredlogs
+websockets
+aiohttp[speedups]==3.8.6
 ffmpy3
-python-socks[asyncio]

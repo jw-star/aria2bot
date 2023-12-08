@@ -8,30 +8,35 @@ aria2 telegram bot
 2. ~~多用户，每个用户只能看到自己的任务~~，单用户现在，多用户没什么用
 3. 支持 `批量` 添加 http、磁力、种子下载
 4. 支持自定义目录下载,使用 /path 命令设置
-
+5. 自己实现 `aria2c` `jsonrpc` 调用 增加断开重连功能
+6. 命令 /web 获取在线 ariaNg web控制地址，方便跳转
 
 ### 缺点
 
-1. 由于电报单个文件2G限制,超过2g文件将上传失败
+1. 由于电报单个文件2G限制,超过2g文件将上传失败,可以使用手机号登陆方式去实现会员最大4g文件上传
 
 ### 如何安装
 
-1.编辑docker-compose.yml
+1.重命名 db/config.example.yml 为 config.yml
 
+设置参数
 ```yaml
-      API_ID: 121233 # https://my.telegram.org 获取
-      API_HASH: fafddddddd # https://my.telegram.org 获取
-      BOT_TOKEN: 19092ddd4224:AAE5bX4RkyJmvpCEgnbc5IPLrxMCtwODSYk # 在telegram @BotFather 获取
-      JSON_RPC_URL: http://11111:6800/jsonrpc
-      JSON_RPC_TOKEN: 11111
-      SEND_ID: 11111     #可以启动bot后 /start 获取，或者转发消息给 @get_id_bot 
-      #      PROXY_IP:   #可选  代理ip
-      #      PROXY_PORT:  #可选 代理端口
-      UP_TELEGRAM: 'False' #是否上传电报
+API_ID: xxxx
+API_HASH: xxxxxxxx
+BOT_TOKEN: xxxx:xxxxxxxxxxxx
+ADMIN_ID: 管理员ID
+#默认是否上传到电报 true 或者 false
+UP_TELEGRAM: true
+#aria2c 设置
+RPC_SECRET: xxxxxxx
+RPC_URL: xxxxxx:6800/jsonrpc
+
+#代理ip 不需要留空,目前代理只支持代理bot，aria2c 连接不支持代理目前
+PROXY_IP: 
+PROXY_PORT:
 ```
 
 2.启动
-
 
 安装 docker
 
@@ -39,30 +44,31 @@ aria2 telegram bot
 curl -fsSL get.docker.com -o get-docker.sh&&sh get-docker.sh &&systemctl enable docker&&systemctl start docker
 ```
 
+下载库到本地
 
-更新镜像
-
-```
-docker compose pull
+```bash
+git clone https://github.com/jw-star/aria2bot.git
 ```
 
 删除容器（如果容器存在）
+
 ```
-docker rm -f arbot
+docker compose down
 ```
 
 后台启动
+
 ```yaml
-docker compose up -d
+docker compose up -d --build
 ```
 
 查看日志
 
 ```yaml
-docker logs -f arbot
+docker compose logs -f --tail=4000
 ```
 
-### 可选安装
+### 自行安装aria2
 
 aria2 一键安装脚本
 
@@ -72,17 +78,13 @@ https://github.com/P3TERX/aria2.sh
 
 ### 应用截图
 
-/help  查看帮助
+/help 查看帮助
 
-<img alt="img.png" height="400" src="img.jpg" />
+<img alt="img.png" height="400" src="./img.png" />
 
 ### 灵感来自
 
-
-
 https://github.com/HouCoder/tele-aria2
-
-https://github.com/synodriver/aioaria2
 
 多平台构建参考: https://cloud.tencent.com/developer/article/1543689
 

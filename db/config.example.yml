@@ -1,0 +1,13 @@
+API_ID: xxxx
+API_HASH: xxxxxxxx
+BOT_TOKEN: xxxx:xxxxxxxxxxxx
+ADMIN_ID: 管理员ID
+#默认是否上传到电报 true 或者 false
+UP_TELEGRAM: true
+#aria2c 设置
+RPC_SECRET: xxxxxxx
+RPC_URL: xxxxxx:6800/jsonrpc
+
+#代理ip 不需要留空,目前代理只支持代理bot，aria2c 连接不支持代理目前
+PROXY_IP:
+PROXY_PORT:

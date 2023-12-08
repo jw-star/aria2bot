@@ -1,32 +1,8 @@
 import os
-from enum import Enum
-
-import ffmpy3
+import secrets
 from urllib.parse import urlparse
 
-
-class Status(Enum):
-    active = '正在下载'
-    waiting = '等待下载'
-    paused = '暂停'
-    error = '错误'
-    complete = '完成'
-    removed = '已删除'
-
-
-def getEmByName(key):
-    for v in Status:
-        if v.name == key:
-            return v.value
-
-
-def hum_convert(value):
-    units = ["B", "KB", "MB", "GB", "TB", "PB"]
-    size = 1024.0
-    for i in range(len(units)):
-        if (value / size) < 1:
-            return "%.2f%s" % (value, units[i])
-        value = value / size
+import ffmpy3
 
 
 async def imgCoverFromFile(input, output):
@@ -39,17 +15,28 @@ async def imgCoverFromFile(input, output):
     await ff.wait()
 
 
-async def order_moov(input, output):
-    # ffmpeg -i input.mp4 -movflags faststart -acodec copy -vcodec copy output.mp4
-    ff = ffmpy3.FFmpeg(
-        inputs={input: None},
-        outputs={output: ['-y', '-movflags', 'faststart', '-acodec', 'copy', '-vcodec', 'copy', '-loglevel', 'quiet']}
-    )
-    await ff.run_async()
-    await ff.wait()
+def get_file_name(task):
+    if task.__contains__('bittorrent'):
+        if task['bittorrent'].__contains__('info'):
+            # bt下载
+            return task['bittorrent']['info']['name']
+        # bt元信息
+        return task['files'][0]['path']
+    filename = task['files'][0]['path'].split('/')[-1]
+    if filename == '':
+        pa = urlparse(task['files'][0]['uris'][0]['uri'])
+        filename = os.path.basename(pa.path)
+    return filename
 
 
-def byte2Readable(size):
+def progress(total_length, completed_length):
+    if total_length != 0:
+        return '{:.2f}%'.format(completed_length / total_length * 100)
+    else:
+        return "0"
+
+
+def byte2_readable(size):
     '''
     auth: wangshengke@kedacom.com ；科达柯大侠
     递归实现，精确为最大单位值 + 小数点后三位
@@ -70,23 +57,23 @@ def byte2Readable(size):
         level = -1
     return ('{}.{:>03d}{}'.format(integer, remainder, units[level]))
 
+def hum_convert(value):
+    units = ["B", "KB", "MB", "GB", "TB", "PB"]
+    size = 1024.0
+    for i in range(len(units)):
+        if (value / size) < 1:
+            return "%.2f%s" % (value, units[i])
+        value = value / size
 
-def progress(total_length, completed_length):
-    if total_length != 0:
-        return '{:.2f}%'.format(completed_length / total_length * 100)
-    else:
-        return "0"
 
-
-def getFileName(task):
-    if task.__contains__('bittorrent'):
-        if task['bittorrent'].__contains__('info'):
-            # bt下载
-            return task['bittorrent']['info']['name']
-        # bt元信息
-        return task['files'][0]['path']
-    filename = task['files'][0]['path'].split('/')[-1]
-    if filename == '':
-        pa = urlparse(task['files'][0]['uris'][0]['uri'])
-        filename = os.path.basename(pa.path)
-    return filename
+def generate_hex_string(length=16):
+    """
+    生成16位gid
+    :param length:
+    :return:
+    """
+    # 生成随机字节
+    random_bytes = secrets.token_bytes(length // 2)  # 每个字节对应两个十六进制字符
+    # 将字节转换为十六进制字符串
+    hex_string = random_bytes.hex()
+    return hex_string
