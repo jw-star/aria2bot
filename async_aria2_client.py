@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import functools
 import json
 import os
 import uuid
@@ -26,6 +27,7 @@ class AsyncAria2Client:
         self.websocket = None
         self.reconnect = True
         self.bot = bot
+        self.progress_cache = {}
 
     async def connect(self):
         try:
@@ -183,13 +185,19 @@ class AsyncAria2Client:
                                                       '上传中===> ' + path,
                                                       )
 
-                    async def callback(current, total):
-                        await self.bot.edit_message(msg, path + ' \n上传中 : {:.2%}'.format(current / total))
-                        await asyncio.sleep(4)
-                        print(current / total)
+                    async def callback(current, total, gid):
+                        gid_progress = self.progress_cache.get(gid, 0)
+                        new_progress = current / total
+                        formatted_progress = "{:.2%}".format(new_progress)
+                        if abs(new_progress - gid_progress) >= 0.05:
+                            self.progress_cache[gid] = new_progress
+                            await self.bot.edit_message(msg, path + f' \n上传中 : {formatted_progress}')
+
 
                     try:
                         # 单独处理mp4上传
+                        # 创建带有额外参数部分函数
+                        partial_callback = functools.partial(callback, gid=gid)
                         if '.mp4' in path:
                             pat, filename = os.path.split(path)
                             # 截图
@@ -198,7 +206,7 @@ class AsyncAria2Client:
                                                      path,
                                                      thumb=pat + '/' + filename + '.jpg',
                                                      supports_streaming=True,
-                                                     progress_callback=callback
+                                                     progress_callback=partial_callback
                                                      )
                             await msg.delete()
                             os.unlink(pat + '/' + filename + '.jpg')
@@ -206,13 +214,13 @@ class AsyncAria2Client:
                         else:
                             await self.bot.send_file(ADMIN_ID,
                                                      path,
-                                                     progress_callback=callback
+                                                     progress_callback=partial_callback
                                                      )
                             await msg.delete()
                             os.unlink(path)
 
                     except Exception as e:
-                        print('文件未找到')
+                        print(e)
                         await self.bot.send_message(ADMIN_ID, f'{path}不存在，上传失败')
 
     async def on_download_pause(self, result):
