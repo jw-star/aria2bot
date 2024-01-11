@@ -90,15 +90,14 @@ class AsyncAria2Client:
             file_content = file.read()
             base64_content = str(base64.b64encode(file_content), "utf-8")
         params = [
-            base64_content,
-            [],
+            base64_content
         ]
         if options:
             params.append(options)
-        if position:
+        if position is not None:
             params.append(position)
         else:
-            params.append(999)
+            params.append([999])
 
         rpc_body = self.get_rpc_body('aria2.addTorrent', params)
         return await self.post_body(rpc_body)
