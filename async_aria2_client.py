@@ -4,6 +4,7 @@ import functools
 import json
 import os
 import uuid
+from datetime import datetime
 from pprint import pprint
 from typing import List, Dict, Any
 
@@ -149,16 +150,14 @@ class AsyncAria2Client:
                 speed = hum_convert(int(downloadSpeed))
                 prog = progress(int(totalLength), int(completedLength))
                 if status != 'complete':
-                    try:
-                        msg = await self.bot.edit_message(msg,
-                                                          f'{file_name} 下载中... \n '
-                                                          f'对应路径: {dir}\n'
-                                                          f'进度: {prog}\n'
-                                                          f'大小: {size}\n'
-                                                          f'速度: {speed}/s',
-                                                          parse_mode='html')
-                    except:
-                        pass
+                    msg = await self.bot.edit_message(msg,
+                                                      f'{file_name} 下载中... \n '
+                                                      f'对应路径: {dir}\n'
+                                                      f'进度: {prog}\n'
+                                                      f'大小: {size}\n'
+                                                      f'速度: {speed}/s\n'
+                                                      f'时间：{ datetime.now()}',
+                                                      parse_mode='html')
                     await asyncio.sleep(3)
                 else:
                     return
