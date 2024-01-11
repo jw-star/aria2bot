@@ -149,13 +149,16 @@ class AsyncAria2Client:
                 speed = hum_convert(int(downloadSpeed))
                 prog = progress(int(totalLength), int(completedLength))
                 if status != 'complete':
-                    msg = await self.bot.edit_message(msg,
-                                                      f'{file_name} 下载中... \n '
-                                                      f'对应路径: {dir}\n'
-                                                      f'进度: {prog}\n'
-                                                      f'大小: {size}\n'
-                                                      f'速度: {speed}/s',
-                                                      parse_mode='html')
+                    try:
+                        msg = await self.bot.edit_message(msg,
+                                                          f'{file_name} 下载中... \n '
+                                                          f'对应路径: {dir}\n'
+                                                          f'进度: {prog}\n'
+                                                          f'大小: {size}\n'
+                                                          f'速度: {speed}/s',
+                                                          parse_mode='html')
+                    except:
+                        pass
                     await asyncio.sleep(3)
                 else:
                     return
